@@ -1,0 +1,5 @@
+{
+  "name": "AutoCross-Edu",
+  "description": "An AI-powered crossword-based assessment platform for universities, featuring automated puzzle generation and a results dashboard.",
+  "requestFramePermissions": []
+}
