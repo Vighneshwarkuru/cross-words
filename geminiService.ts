@@ -54,9 +54,9 @@ export const generateCrossword = async (
 
   parts.push({ text: prompt });
 
-  // Use gemini-1.5-flash for balance of speed and cost/quotas
+  // Use gemini-1.5-flash-latest for balance of speed and cost/quotas
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-flash-latest',
     generationConfig: {
       temperature: 0.1,
       responseMimeType: 'application/json',
