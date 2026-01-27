@@ -1,8 +1,12 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { CrosswordGenerationResult } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+if (!apiKey) {
+  console.error('VITE_GEMINI_API_KEY is not set in environment variables');
+}
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export interface FileData {
   data: string;
@@ -51,27 +55,26 @@ export const generateCrossword = async (
   parts.push({ text: prompt });
 
   // Use gemini-1.5-flash for balance of speed and cost/quotas
-  const response = await ai.models.generateContent({
+  const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    contents: { parts },
-    config: {
-      temperature: 0.1, // Near-zero for accuracy
+    generationConfig: {
+      temperature: 0.1,
       responseMimeType: 'application/json',
       responseSchema: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          title: { type: Type.STRING },
-          subject: { type: Type.STRING },
+          title: { type: SchemaType.STRING },
+          subject: { type: SchemaType.STRING },
           questions: {
-            type: Type.ARRAY,
+            type: SchemaType.ARRAY,
             items: {
-              type: Type.OBJECT,
+              type: SchemaType.OBJECT,
               properties: {
-                word: { type: Type.STRING },
-                clue: { type: Type.STRING },
-                direction: { type: Type.STRING, enum: ['across', 'down'] },
-                row: { type: Type.INTEGER },
-                col: { type: Type.INTEGER },
+                word: { type: SchemaType.STRING },
+                clue: { type: SchemaType.STRING },
+                direction: { type: SchemaType.STRING, enum: ['across', 'down'] },
+                row: { type: SchemaType.NUMBER },
+                col: { type: SchemaType.NUMBER },
               },
               required: ['word', 'clue', 'direction', 'row', 'col'],
             },
@@ -82,8 +85,21 @@ export const generateCrossword = async (
     },
   });
 
-  const resultText = response.text;
-  if (!resultText) throw new Error("No response from AI");
+  const response = await model.generateContent(parts);
 
-  return JSON.parse(resultText) as CrosswordGenerationResult;
+  const resultText = response.response.text();
+  if (!resultText) {
+    console.error('Empty response from Gemini API');
+    throw new Error("No response from AI");
+  }
+
+  console.log('Gemini API Response:', resultText);
+  
+  try {
+    return JSON.parse(resultText) as CrosswordGenerationResult;
+  } catch (parseError) {
+    console.error('Failed to parse Gemini response:', parseError);
+    console.error('Raw response:', resultText);
+    throw new Error("Failed to parse AI response");
+  }
 };

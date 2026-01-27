@@ -67,19 +67,32 @@ const FacultyCreate: React.FC = () => {
     }
 
     setStep('generating');
+    setLoading(true);
     try {
+      console.log('Starting generation with:', {
+        topic: formData.topic,
+        contentLength: formData.content.length,
+        hasFile: !!selectedFile,
+        questionsCount: formData.questionsCount
+      });
+
       const aiResult = await generateCrossword(
         formData.topic,
         formData.content,
         formData.questionsCount,
         selectedFile || undefined
       );
+      
+      console.log('Generation successful:', aiResult);
       setQuestions(aiResult.questions);
       setStep('review');
     } catch (err) {
-      console.error(err);
-      alert('Generation failed. Please try providing more text or a different file.');
+      console.error('Generation error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      alert(`Generation failed: ${errorMessage}\n\nPlease check:\n1. Your API key is set correctly\n2. The PDF contains readable text\n3. You have internet connection`);
       setStep('config');
+    } finally {
+      setLoading(false);
     }
   };
 
