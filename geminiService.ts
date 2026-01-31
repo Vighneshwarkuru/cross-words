@@ -38,7 +38,21 @@ export const generateCrossword = async (
     SOURCE TEXT (if provided):
     ${content.substring(0, 30000)}
 
-    OUTPUT JSON ONLY.
+    OUTPUT FORMAT:
+    Return strictly a JSON object with this structure (no markdown, no backticks):
+    {
+      "title": "Assessment Title",
+      "subject": "Subject Name",
+      "questions": [
+        {
+          "word": "EXAMPLE",
+          "clue": "An illustrative instance used to explain a concept in [Subject].",
+          "direction": "across",
+          "row": 0,
+          "col": 0
+        }
+      ]
+    }
   `;
 
   const parts: any[] = [];
@@ -54,9 +68,9 @@ export const generateCrossword = async (
 
   parts.push({ text: prompt });
 
-  // Use gemini-1.5-flash-latest for balance of speed and cost/quotas
+  // Revert to stable gemini-1.5-flash to fix loading issues
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-2.5-flash',
     generationConfig: {
       temperature: 0.1,
       responseMimeType: 'application/json',
@@ -85,21 +99,30 @@ export const generateCrossword = async (
     },
   });
 
-  const response = await model.generateContent(parts);
-
-  const resultText = response.response.text();
-  if (!resultText) {
-    console.error('Empty response from Gemini API');
-    throw new Error("No response from AI");
-  }
-
-  console.log('Gemini API Response:', resultText);
-  
   try {
+    // Add a 90-second timeout to prevent infinite loading (large PDFs can take time)
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out after 90 seconds")), 90000)
+    );
+
+    const result = await Promise.race([
+      model.generateContent(parts),
+      timeoutPromise
+    ]) as any;
+
+    const response = result.response;
+    const resultText = response.text();
+
+    if (!resultText) {
+      console.warn('Gemini response empty. Finish reason:', response.candidates?.[0]?.finishReason);
+      throw new Error("AI returned no content (Safety Block or Empty).");
+    }
+
+    console.log('Gemini API Response:', resultText);
     return JSON.parse(resultText) as CrosswordGenerationResult;
-  } catch (parseError) {
-    console.error('Failed to parse Gemini response:', parseError);
-    console.error('Raw response:', resultText);
-    throw new Error("Failed to parse AI response");
+
+  } catch (error: any) {
+    console.error('Gemini Generation Error:', error);
+    throw new Error(error.message || "Failed to generate crossword.");
   }
 };

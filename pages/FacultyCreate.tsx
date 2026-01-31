@@ -82,7 +82,7 @@ const FacultyCreate: React.FC = () => {
         formData.questionsCount,
         selectedFile || undefined
       );
-      
+
       console.log('Generation successful:', aiResult);
       setQuestions(aiResult.questions);
       setStep('review');
@@ -125,19 +125,38 @@ const FacultyCreate: React.FC = () => {
 
   if (step === 'generating') {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="relative w-28 h-28 mb-10">
-          <div className="absolute inset-0 border-4 border-teal-500/20 rounded-full"></div>
+      <div className="flex flex-col items-center justify-center py-32 text-center min-h-[60vh]">
+        <div className="relative w-32 h-32 mb-12">
+          <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
           <div className="absolute inset-0 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-teal-500">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a2 2 0 00-1.96 1.414l-.727 2.903a2 2 0 01-3.577 1.12l-1.914-1.914a2 2 0 00-2.45-.308l-2.903.727a2 2 0 01-1.414-1.96l.477-2.387a2 2 0 00-.547-1.022L1.22 11.22a2 2 0 011.12-3.577l2.903-.727a2 2 0 001.414-1.96l.477-2.387a2 2 0 013.577-1.12l1.914 1.914a2 2 0 002.45.308l2.903-.727a2 2 0 011.414 1.96l-.477 2.387a2 2 0 00.547 1.022l1.782 1.782a2 2 0 01-1.12 3.577l-2.903.727a2 2 0 00-1.414 1.96l-.477 2.387a2 2 0 01-3.577 1.12l-1.914-1.914a2 2 0 00-2.45-.308l-2.903.727a2 2 0 01-1.414-1.96l.477-2.387a2 2 0 00-.547-1.022L1.22 12.78a2 2 0 011.12-3.577l2.903-.727a2 2 0 001.414-1.96l.477-2.387a2 2 0 013.577-1.12l1.914 1.914a2 2 0 002.45.308l2.903-.727a2 2 0 011.414 1.96l-.477 2.387a2 2 0 00.547 1.022l1.782 1.782z" />
+          <div className="absolute inset-0 flex items-center justify-center text-teal-400 animate-pulse">
+            <svg className="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
         </div>
-        <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Extracting Academic Terms...</h2>
-        <p className="text-slate-400 max-w-sm mx-auto leading-relaxed">
-          Gemini 3 Flash is performing a high-speed semantic analysis of your material to generate strictly relevant questions.
+
+        <h2 className="text-4xl font-black text-white mb-6 tracking-tight animate-slide-up">
+          Cooking your <span className="text-teal-400">Puzzle</span>...
+        </h2>
+
+        <div className="space-y-4 max-w-sm mx-auto animate-slide-up animate-delay-100">
+          <div className="flex items-center gap-4 text-slate-400">
+            <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
+            <span className="text-sm font-bold uppercase tracking-widest">Reading Document...</span>
+          </div>
+          <div className="flex items-center gap-4 text-slate-500">
+            <div className="w-2 h-2 rounded-full bg-slate-700 animate-pulse animate-delay-200"></div>
+            <span className="text-sm font-bold uppercase tracking-widest">Identifying Concepts...</span>
+          </div>
+          <div className="flex items-center gap-4 text-slate-600">
+            <div className="w-2 h-2 rounded-full bg-slate-800 animate-pulse animate-delay-300"></div>
+            <span className="text-sm font-bold uppercase tracking-widest">Drafting Clues...</span>
+          </div>
+        </div>
+
+        <p className="fixed bottom-8 text-slate-600 text-xs uppercase tracking-widest animate-pulse">
+          Do not close this tab • Processing typically takes 30-90s
         </p>
       </div>
     );

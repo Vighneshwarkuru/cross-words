@@ -4,7 +4,8 @@ import mammoth from 'mammoth';
 import JSZip from 'jszip';
 
 // Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export const parseFile = async (file: File): Promise<string> => {
     const fileType = file.name.split('.').pop()?.toLowerCase();
