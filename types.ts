@@ -36,5 +36,6 @@ export interface Response {
 export interface CrosswordGenerationResult {
   title: string;
   subject: string;
+  visual_check?: string;
   questions: Omit<Question, 'id' | 'assessment_id'>[];
 }
